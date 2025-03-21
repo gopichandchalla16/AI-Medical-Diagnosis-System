@@ -38,11 +38,10 @@ st.markdown(
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        background-color: rgba(255, 255, 255, 0.8); /* Stronger overlay to reduce background prominence */
+        background-color: rgba(255, 255, 255, 0.8); /* Stronger overlay */
     }
-    /* Main content */
     .main-content {
-        background-color: #FFFFFF; /* Solid white for maximum readability */
+        background-color: #FFFFFF;
         padding: 25px;
         border-radius: 15px;
         margin: 15px;
@@ -73,9 +72,8 @@ st.markdown(
         border: 2px solid #4CAF50;
         border-radius: 10px;
     }
-    /* Sidebar with solid color */
     .sidebar .sidebar-content {
-        background-color: #E0E0E0; /* Light gray for contrast */
+        background-color: #E0E0E0;
         border-radius: 15px;
         padding: 15px;
         border: 2px solid #4CAF50;
@@ -96,7 +94,7 @@ st.markdown(
         font-size: 26px;
     }
     p, div, span, label {
-        color: #000000 !important; /* Black text for max visibility */
+        color: #000000 !important;
         font-size: 20px;
         font-weight: bold;
     }
@@ -105,23 +103,21 @@ st.markdown(
         font-size: 22px;
         font-weight: bold;
     }
-    /* Sidebar menu items */
     .sidebar .nav-link {
         font-size: 24px !important;
         font-weight: bold !important;
-        color: #000000 !important; /* Black text */
+        color: #000000 !important;
     }
     .sidebar .nav-link-selected {
         background-color: #4CAF50 !important;
-        color: #FFFFFF !important; /* White text on green */
-        font-weight: bold !important;
+        color: #FFFFFF !important;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Sidebar menu with high-contrast, visible options
+# Sidebar menu
 with st.sidebar:
     selected = option_menu(
         "AI Disease Prediction",
@@ -137,7 +133,7 @@ with st.sidebar:
         }
     )
 
-# Main content wrapped in a div for better visibility
+# Main content
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 st.title("AI-Powered Medical Diagnosis System")
 st.write("Hello! I’m your AI helper. Choose a check-up from the side and tell me how you feel—I’ll check your health for you!")
@@ -175,10 +171,14 @@ else:
         with col3:
             if st.button("Check Diabetes"):
                 input_data = np.array([[preg, gluc, bp, skin, ins, bmi, dpf, age]])
-                prediction = models['diabetes'].predict(input_data)
-                confidence = np.random.uniform(0.85, 0.99)
-                result = "Yes, diabetes possible" if prediction[0] == 1 else "No diabetes!"
-                st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                expected_features = getattr(models['diabetes'], 'n_features_in_', None)
+                if expected_features and input_data.shape[1] != expected_features:
+                    st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
+                else:
+                    prediction = models['diabetes'].predict(input_data)
+                    confidence = np.random.uniform(0.85, 0.99)
+                    result = "Yes, diabetes possible" if prediction[0] == 1 else "No diabetes!"
+                    st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -207,10 +207,14 @@ else:
         with col3:
             if st.button("Check Heart"):
                 input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
-                prediction = models['heart'].predict(input_data)
-                confidence = np.random.uniform(0.85, 0.99)
-                result = "Yes, heart needs care" if prediction[0] == 1 else "Heart is okay!"
-                st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                expected_features = getattr(models['heart'], 'n_features_in_', None)
+                if expected_features and input_data.shape[1] != expected_features:
+                    st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
+                else:
+                    prediction = models['heart'].predict(input_data)
+                    confidence = np.random.uniform(0.85, 0.99)
+                    result = "Yes, heart needs care" if prediction[0] == 1 else "Heart is okay!"
+                    st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -236,10 +240,14 @@ else:
         with col3:
             if st.button("Check Parkinson’s"):
                 input_data = np.array([[fo, fhi, flo, jitter, shimmer, nhr, hnr, rpde, dfa, spread1]])
-                prediction = models['parkinsons'].predict(input_data)
-                confidence = np.random.uniform(0.85, 0.99)
-                result = "Yes, Parkinson’s possible" if prediction[0] == 1 else "No Parkinson’s!"
-                st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                expected_features = getattr(models['parkinsons'], 'n_features_in_', None)
+                if expected_features and input_data.shape[1] != expected_features:
+                    st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
+                else:
+                    prediction = models['parkinsons'].predict(input_data)
+                    confidence = np.random.uniform(0.85, 0.99)
+                    result = "Yes, Parkinson’s possible" if prediction[0] == 1 else "No Parkinson’s!"
+                    st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -263,10 +271,14 @@ else:
         with col3:
             if st.button("Check Lungs"):
                 input_data = np.array([[age, smoking, yellow_fingers, anxiety, chronic_disease, fatigue, wheezing, coughing]])
-                prediction = models['lungs'].predict(input_data)
-                confidence = np.random.uniform(0.85, 0.99)
-                result = "Yes, lungs need care" if prediction[0] == 1 else "Lungs are okay!"
-                st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                expected_features = getattr(models['lungs'], 'n_features_in_', None)
+                if expected_features and input_data.shape[1] != expected_features:
+                    st.error(f"Error: Lung model expects {expected_features} inputs, but got {input_data.shape[1]}. Please adjust the inputs.")
+                else:
+                    prediction = models['lungs'].predict(input_data)
+                    confidence = np.random.uniform(0.85, 0.99)
+                    result = "Yes, lungs need care" if prediction[0] == 1 else "Lungs are okay!"
+                    st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -289,10 +301,14 @@ else:
         with col3:
             if st.button("Check Thyroid"):
                 input_data = np.array([[age, tsh, t3, tt4, t4u, fti, tbg]])
-                prediction = models['thyroid'].predict(input_data)
-                confidence = np.random.uniform(0.85, 0.99)
-                result = "Yes, thyroid needs help" if prediction[0] == 1 else "Thyroid is okay!"
-                st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                expected_features = getattr(models['thyroid'], 'n_features_in_', None)
+                if expected_features and input_data.shape[1] != expected_features:
+                    st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
+                else:
+                    prediction = models['thyroid'].predict(input_data)
+                    confidence = np.random.uniform(0.85, 0.99)
+                    result = "Yes, thyroid needs help" if prediction[0] == 1 else "Thyroid is okay!"
+                    st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
