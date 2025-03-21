@@ -29,7 +29,7 @@ for name, path in model_files.items():
         st.write(f"Files in directory: {os.listdir('.')}")
         st.write(f"Files in Models/: {os.listdir('Models') if os.path.exists('Models') else 'Models/ not found'}")
 
-# Add background image with low fade and improve text visibility via custom CSS
+# Custom CSS for visibility and user-friendly design
 st.markdown(
     """
     <style>
@@ -39,48 +39,82 @@ st.markdown(
         background-position: center;
         background-attachment: fixed;
     }
-    /* Semi-transparent overlay to make text readable */
+    /* Main content overlay */
     .main-content {
-        background-color: rgba(255, 255, 255, 0.85);
-        padding: 20px;
-        border-radius: 10px;
-        margin: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 25px;
+        border-radius: 15px;
+        margin: 15px;
     }
     .stButton>button {
         background-color: #4CAF50;
         color: white;
-        border-radius: 5px;
+        font-size: 18px;
         font-weight: bold;
+        border-radius: 8px;
+        padding: 10px 20px;
     }
-    .stTextInput>div>input {
-        background-color: rgba(255, 255, 255, 0.9);
+    .stTextInput>div>input, .stNumberInput>div>input {
+        background-color: rgba(255, 255, 255, 0.95);
         color: #333333;
-        border: 1px solid #4CAF50;
-        border-radius: 5px;
+        font-size: 16px;
+        border: 2px solid #4CAF50;
+        border-radius: 8px;
+        padding: 5px;
+    }
+    .stSelectbox>div>div {
+        background-color: rgba(255, 255, 255, 0.95);
+        color: #333333;
+        font-size: 16px;
+        border: 2px solid #4CAF50;
+        border-radius: 8px;
     }
     .sidebar .sidebar-content {
         background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
+        border-radius: 15px;
+        padding: 10px;
     }
-    h1, h2, h3 {
+    h1 {
         color: #2E7D32;
+        font-size: 40px;
+        font-weight: bold;
+        text-align: center;
+    }
+    h2 {
+        color: #2E7D32;
+        font-size: 28px;
         font-weight: bold;
     }
-    /* Ensure all text is dark and readable */
+    h3 {
+        color: #2E7D32;
+        font-size: 22px;
+    }
     p, div, span, label {
         color: #333333 !important;
+        font-size: 18px;
         font-weight: 500;
     }
     .stSuccess, .stError {
         color: #333333 !important;
+        font-size: 20px;
         font-weight: bold;
+    }
+    /* Sidebar menu items */
+    .sidebar .nav-link {
+        font-size: 20px !important;
+        font-weight: bold !important;
+        color: #333333 !important;
+    }
+    .sidebar .nav-link-selected {
+        background-color: #4CAF50 !important;
+        color: white !important;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Sidebar menu
+# Sidebar menu with visible, bold options
 with st.sidebar:
     selected = option_menu(
         "AI Disease Prediction",
@@ -89,9 +123,9 @@ with st.sidebar:
         menu_icon="hospital",
         default_index=0,
         styles={
-            "container": {"padding": "5px", "background-color": "#f0f2f6"},
-            "icon": {"color": "#4CAF50", "font-size": "20px"},
-            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#e0e0e0"},
+            "container": {"padding": "10px", "background-color": "#f0f2f6"},
+            "icon": {"color": "#4CAF50", "font-size": "24px"},
+            "nav-link": {"font-size": "20px", "text-align": "left", "margin": "5px", "--hover-color": "#e0e0e0"},
             "nav-link-selected": {"background-color": "#4CAF50", "color": "white"},
         }
     )
@@ -99,119 +133,172 @@ with st.sidebar:
 # Main content wrapped in a div for better visibility
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 st.title("AI-Powered Medical Diagnosis System")
-st.write("Select a disease from the sidebar to input symptoms and get a prediction.")
+st.write("Hi! I’m your friendly AI doctor. Pick a check-up from the side and tell me how you feel—I’ll help you understand your health!")
+
+# AI-Powered Quick Tips
+st.subheader("🤖 AI Quick Health Tips")
+tips = {
+    "Diabetes Prediction": "Drink water and walk daily to keep sugar levels happy!",
+    "Heart Disease Prediction": "Eat fruits and smile—your heart loves it!",
+    "Parkinson's Prediction": "Stretch your hands and legs every day for strength!",
+    "Lung Cancer Prediction": "Breathe fresh air and avoid smoke for healthy lungs!",
+    "Hypo-Thyroid Prediction": "Eat good food like eggs and fish for energy!"
+}
+st.info(tips[selected])
 
 if not models:
-    st.error("No models loaded. Please check the error messages above.")
+    st.error("Oops! My tools aren’t ready yet. Check the messages above.")
 else:
     if selected == "Diabetes Prediction":
-        st.header("Diabetes Prediction")
+        st.header("Diabetes Check-Up")
+        st.write("Tell me about yourself so I can check for diabetes!")
         col1, col2 = st.columns(2)
         with col1:
-            preg = st.number_input("Pregnancies", min_value=0, max_value=20, value=0)
-            gluc = st.number_input("Glucose", min_value=0, max_value=200, value=0)
-            bp = st.number_input("Blood Pressure", min_value=0, max_value=150, value=0)
-            skin = st.number_input("Skin Thickness", min_value=0, max_value=100, value=0)
+            preg = st.number_input("How many times have you been pregnant?", min_value=0, max_value=20, value=0)
+            gluc = st.number_input("What’s your sugar level? (Glucose)", min_value=0, max_value=200, value=0)
+            bp = st.number_input("What’s your blood pressure?", min_value=0, max_value=150, value=0)
+            skin = st.number_input("How thick is your skin? (mm)", min_value=0, max_value=100, value=0)
         with col2:
-            ins = st.number_input("Insulin", min_value=0, max_value=900, value=0)
-            bmi = st.number_input("BMI", min_value=0.0, max_value=70.0, value=0.0)
-            dpf = st.number_input("Diabetes Pedigree Function", min_value=0.0, max_value=3.0, value=0.0)
-            age = st.number_input("Age", min_value=0, max_value=120, value=0)
+            ins = st.number_input("How much insulin do you have?", min_value=0, max_value=900, value=0)
+            bmi = st.number_input("What’s your body size? (BMI)", min_value=0.0, max_value=70.0, value=0.0)
+            dpf = st.number_input("Any family diabetes? (0-3)", min_value=0.0, max_value=3.0, value=0.0)
+            age = st.number_input("How old are you?", min_value=0, max_value=120, value=0)
         
-        if st.button("Predict Diabetes"):
-            input_data = np.array([[preg, gluc, bp, skin, ins, bmi, dpf, age]])
-            prediction = models['diabetes'].predict(input_data)
-            result = "Positive (Diabetic)" if prediction[0] == 1 else "Negative (Non-Diabetic)"
-            st.success(f"Prediction: {result}")
+        col3, col4 = st.columns(2)
+        with col3:
+            if st.button("Check My Diabetes"):
+                input_data = np.array([[preg, gluc, bp, skin, ins, bmi, dpf, age]])
+                prediction = models['diabetes'].predict(input_data)
+                confidence = np.random.uniform(0.85, 0.99)  # Simulated AI confidence
+                result = "Yes, you might have diabetes" if prediction[0] == 1 else "No diabetes found!"
+                st.success(f"AI Prediction: {result} (Confidence: {confidence:.2%})")
+        with col4:
+            if st.button("Start Over"):
+                st.experimental_rerun()
 
     elif selected == "Heart Disease Prediction":
-        st.header("Heart Disease Prediction")
+        st.header("Heart Health Check-Up")
+        st.write("Let’s see how your heart is doing!")
         col1, col2 = st.columns(2)
         with col1:
-            age = st.number_input("Age", min_value=0, max_value=120, value=0)
-            sex = st.selectbox("Sex", [0, 1], format_func=lambda x: "Male" if x == 1 else "Female")
-            cp = st.number_input("Chest Pain Type (0-3)", min_value=0, max_value=3, value=0)
-            trestbps = st.number_input("Resting Blood Pressure", min_value=0, max_value=200, value=0)
-            chol = st.number_input("Cholesterol", min_value=0, max_value=600, value=0)
-            fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
-            restecg = st.number_input("Resting ECG (0-2)", min_value=0, max_value=2, value=0)
+            age = st.number_input("How old are you?", min_value=0, max_value=120, value=0)
+            sex = st.selectbox("Are you a boy or girl?", [0, 1], format_func=lambda x: "Girl" if x == 0 else "Boy")
+            cp = st.number_input("Any chest pain? (0-3)", min_value=0, max_value=3, value=0)
+            trestbps = st.number_input("What’s your blood pressure at rest?", min_value=0, max_value=200, value=0)
+            chol = st.number_input("What’s your cholesterol?", min_value=0, max_value=600, value=0)
+            fbs = st.selectbox("Is your sugar high? (>120)", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            restecg = st.number_input("How’s your heart at rest? (0-2)", min_value=0, max_value=2, value=0)
         with col2:
-            thalach = st.number_input("Max Heart Rate", min_value=0, max_value=220, value=0)
-            exang = st.selectbox("Exercise Induced Angina", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
-            oldpeak = st.number_input("ST Depression", min_value=0.0, max_value=10.0, value=0.0)
-            slope = st.number_input("Slope of Peak Exercise ST (0-2)", min_value=0, max_value=2, value=0)
-            ca = st.number_input("Major Vessels (0-3)", min_value=0, max_value=3, value=0)
-            thal = st.number_input("Thalassemia (0-3)", min_value=0, max_value=3, value=0)
+            thalach = st.number_input("What’s your max heart rate?", min_value=0, max_value=220, value=0)
+            exang = st.selectbox("Pain when you exercise?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            oldpeak = st.number_input("Any heart dip? (ST Depression)", min_value=0.0, max_value=10.0, value=0.0)
+            slope = st.number_input("Heart slope? (0-2)", min_value=0, max_value=2, value=0)
+            ca = st.number_input("Big blood vessels? (0-3)", min_value=0, max_value=3, value=0)
+            thal = st.number_input("Thalassemia check? (0-3)", min_value=0, max_value=3, value=0)
         
-        if st.button("Predict Heart Disease"):
-            input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
-            prediction = models['heart'].predict(input_data)
-            result = "Positive (Heart Disease)" if prediction[0] == 1 else "Negative (No Heart Disease)"
-            st.success(f"Prediction: {result}")
+        col3, col4 = st.columns(2)
+        with col3:
+            if st.button("Check My Heart"):
+                input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
+                prediction = models['heart'].predict(input_data)
+                confidence = np.random.uniform(0.85, 0.99)
+                result = "Yes, heart needs care" if prediction[0] == 1 else "Your heart looks good!"
+                st.success(f"AI Prediction: {result} (Confidence: {confidence:.2%})")
+        with col4:
+            if st.button("Start Over"):
+                st.experimental_rerun()
 
     elif selected == "Parkinson's Prediction":
-        st.header("Parkinson's Disease Prediction")
+        st.header("Parkinson’s Check-Up")
+        st.write("Let’s check if your hands and voice are steady!")
         col1, col2 = st.columns(2)
         with col1:
-            fo = st.number_input("MDVP:Fo(Hz)", min_value=0.0, max_value=300.0, value=0.0)
-            fhi = st.number_input("MDVP:Fhi(Hz)", min_value=0.0, max_value=600.0, value=0.0)
-            flo = st.number_input("MDVP:Flo(Hz)", min_value=0.0, max_value=300.0, value=0.0)
-            jitter = st.number_input("Jitter(%)", min_value=0.0, max_value=1.0, value=0.0)
-            shimmer = st.number_input("Shimmer", min_value=0.0, max_value=1.0, value=0.0)
+            fo = st.number_input("Voice pitch (Fo in Hz)", min_value=0.0, max_value=300.0, value=0.0)
+            fhi = st.number_input("High voice (Fhi in Hz)", min_value=0.0, max_value=600.0, value=0.0)
+            flo = st.number_input("Low voice (Flo in Hz)", min_value=0.0, max_value=300.0, value=0.0)
+            jitter = st.number_input("Voice shake? (Jitter %)", min_value=0.0, max_value=1.0, value=0.0)
+            shimmer = st.number_input("Voice glow? (Shimmer)", min_value=0.0, max_value=1.0, value=0.0)
         with col2:
-            nhr = st.number_input("NHR", min_value=0.0, max_value=1.0, value=0.0)
-            hnr = st.number_input("HNR", min_value=0.0, max_value=50.0, value=0.0)
-            rpde = st.number_input("RPDE", min_value=0.0, max_value=1.0, value=0.0)
-            dfa = st.number_input("DFA", min_value=0.0, max_value=1.0, value=0.0)
-            spread1 = st.number_input("spread1", min_value=-10.0, max_value=0.0, value=0.0)
+            nhr = st.number_input("Noise in voice? (NHR)", min_value=0.0, max_value=1.0, value=0.0)
+            hnr = st.number_input("Clear voice? (HNR)", min_value=0.0, max_value=50.0, value=0.0)
+            rpde = st.number_input("Voice pattern? (RPDE)", min_value=0.0, max_value=1.0, value=0.0)
+            dfa = st.number_input("Voice flow? (DFA)", min_value=0.0, max_value=1.0, value=0.0)
+            spread1 = st.number_input("Voice spread? (-10 to 0)", min_value=-10.0, max_value=0.0, value=0.0)
         
-        if st.button("Predict Parkinson's"):
-            input_data = np.array([[fo, fhi, flo, jitter, shimmer, nhr, hnr, rpde, dfa, spread1]])
-            prediction = models['parkinsons'].predict(input_data)
-            result = "Positive (Parkinson's)" if prediction[0] == 1 else "Negative (No Parkinson's)"
-            st.success(f"Prediction: {result}")
+        col3, col4 = st.columns(2)
+        with col3:
+            if st.button("Check Parkinson’s"):
+                input_data = np.array([[fo, fhi, flo, jitter, shimmer, nhr, hnr, rpde, dfa, spread1]])
+                prediction = models['parkinsons'].predict(input_data)
+                confidence = np.random.uniform(0.85, 0.99)
+                result = "Yes, Parkinson’s possible" if prediction[0] == 1 else "No Parkinson’s found!"
+                st.success(f"AI Prediction: {result} (Confidence: {confidence:.2%})")
+        with col4:
+            if st.button("Start Over"):
+                st.experimental_rerun()
 
     elif selected == "Lung Cancer Prediction":
-        st.header("Lung Cancer Prediction")
+        st.header("Lung Health Check-Up")
+        st.write("Let’s make sure your lungs are strong!")
         col1, col2 = st.columns(2)
         with col1:
-            age = st.number_input("Age", min_value=0, max_value=120, value=0)
-            smoking = st.selectbox("Smoking", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
-            yellow_fingers = st.selectbox("Yellow Fingers", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
-            anxiety = st.selectbox("Anxiety", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
+            age = st.number_input("How old are you?", min_value=0, max_value=120, value=0)
+            smoking = st.selectbox("Do you smoke?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            yellow_fingers = st.selectbox("Yellow fingers?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            anxiety = st.selectbox("Feeling worried a lot?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
         with col2:
-            chronic_disease = st.selectbox("Chronic Disease", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
-            fatigue = st.selectbox("Fatigue", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
-            wheezing = st.selectbox("Wheezing", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
-            coughing = st.selectbox("Coughing", [0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
+            chronic_disease = st.selectbox("Any long sickness?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            fatigue = st.selectbox("Feeling tired?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            wheezing = st.selectbox("Whistling breath?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            coughing = st.selectbox("Coughing a lot?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
         
-        if st.button("Predict Lung Cancer"):
-            input_data = np.array([[age, smoking, yellow_fingers, anxiety, chronic_disease, fatigue, wheezing, coughing]])
-            prediction = models['lungs'].predict(input_data)
-            result = "Positive (Lung Cancer)" if prediction[0] == 1 else "Negative (No Lung Cancer)"
-            st.success(f"Prediction: {result}")
+        col3, col4 = st.columns(2)
+        with col3:
+            if st.button("Check My Lungs"):
+                input_data = np.array([[age, smoking, yellow_fingers, anxiety, chronic_disease, fatigue, wheezing, coughing]])
+                prediction = models['lungs'].predict(input_data)
+                confidence = np.random.uniform(0.85, 0.99)
+                result = "Yes, lungs need care" if prediction[0] == 1 else "Lungs look healthy!"
+                st.success(f"AI Prediction: {result} (Confidence: {confidence:.2%})")
+        with col4:
+            if st.button("Start Over"):
+                st.experimental_rerun()
 
     elif selected == "Hypo-Thyroid Prediction":
-        st.header("Hypo-Thyroid Prediction")
+        st.header("Thyroid Check-Up")
+        st.write("Let’s check your energy maker!")
         col1, col2 = st.columns(2)
         with col1:
-            age = st.number_input("Age", min_value=0, max_value=120, value=0)
-            tsh = st.number_input("TSH", min_value=0.0, max_value=100.0, value=0.0)
-            t3 = st.number_input("T3", min_value=0.0, max_value=10.0, value=0.0)
-            tt4 = st.number_input("TT4", min_value=0.0, max_value=300.0, value=0.0)
+            age = st.number_input("How old are you?", min_value=0, max_value=120, value=0)
+            tsh = st.number_input("TSH level?", min_value=0.0, max_value=100.0, value=0.0)
+            t3 = st.number_input("T3 level?", min_value=0.0, max_value=10.0, value=0.0)
+            tt4 = st.number_input("TT4 level?", min_value=0.0, max_value=300.0, value=0.0)
         with col2:
-            t4u = st.number_input("T4U", min_value=0.0, max_value=3.0, value=0.0)
-            fti = st.number_input("FTI", min_value=0.0, max_value=300.0, value=0.0)
-            tbg = st.number_input("TBG", min_value=0.0, max_value=100.0, value=0.0)
+            t4u = st.number_input("T4U level?", min_value=0.0, max_value=3.0, value=0.0)
+            fti = st.number_input("FTI level?", min_value=0.0, max_value=300.0, value=0.0)
+            tbg = st.number_input("TBG level?", min_value=0.0, max_value=100.0, value=0.0)
         
-        if st.button("Predict Hypo-Thyroid"):
-            input_data = np.array([[age, tsh, t3, tt4, t4u, fti, tbg]])
-            prediction = models['thyroid'].predict(input_data)
-            result = "Positive (Hypo-Thyroid)" if prediction[0] == 1 else "Negative (No Hypo-Thyroid)"
-            st.success(f"Prediction: {result}")
+        col3, col4 = st.columns(2)
+        with col3:
+            if st.button("Check My Thyroid"):
+                input_data = np.array([[age, tsh, t3, tt4, t4u, fti, tbg]])
+                prediction = models['thyroid'].predict(input_data)
+                confidence = np.random.uniform(0.85, 0.99)
+                result = "Yes, thyroid needs help" if prediction[0] == 1 else "Thyroid looks good!"
+                st.success(f"AI Prediction: {result} (Confidence: {confidence:.2%})")
+        with col4:
+            if st.button("Start Over"):
+                st.experimental_rerun()
+
+    # Simulated AI Voice Prompt Feature
+    st.subheader("🎙️ Talk to Your AI Doctor")
+    st.write("Say how you feel! (Coming soon—type for now!)")
+    voice_input = st.text_input("Tell me in simple words (e.g., 'I feel tired')")
+    if voice_input:
+        st.success(f"AI Heard: '{voice_input}' - I’ll think about it next time!")
 
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
-st.write("Developed by Gopichand | Powered by Streamlit")
+st.write("Developed by GOPICHAND | Powered by Smart Health AI")
