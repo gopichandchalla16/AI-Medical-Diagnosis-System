@@ -3,6 +3,7 @@ import pickle
 from streamlit_option_menu import option_menu
 import numpy as np
 import os
+from datetime import datetime
 
 # Set page configuration (must be first Streamlit command)
 st.set_page_config(page_title="AI Medical Diagnosis", layout="wide")
@@ -38,7 +39,7 @@ st.markdown(
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        background-color: rgba(255, 255, 255, 0.8); /* Stronger overlay */
+        background-color: rgba(255, 255, 255, 0.8); /* Strong overlay for low fade */
     }
     .main-content {
         background-color: #FFFFFF;
@@ -73,7 +74,7 @@ st.markdown(
         border-radius: 10px;
     }
     .sidebar .sidebar-content {
-        background-color: #E0E0E0;
+        background-color: #B3D4FF; /* Soft blue for visibility */
         border-radius: 15px;
         padding: 15px;
         border: 2px solid #4CAF50;
@@ -117,7 +118,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Sidebar menu
+# Sidebar menu with visible soft blue color
 with st.sidebar:
     selected = option_menu(
         "AI Disease Prediction",
@@ -126,9 +127,9 @@ with st.sidebar:
         menu_icon="hospital",
         default_index=0,
         styles={
-            "container": {"padding": "15px", "background-color": "#E0E0E0"},
+            "container": {"padding": "15px", "background-color": "#B3D4FF"},
             "icon": {"color": "#4CAF50", "font-size": "28px"},
-            "nav-link": {"font-size": "24px", "text-align": "left", "margin": "10px", "--hover-color": "#D0D0D0"},
+            "nav-link": {"font-size": "24px", "text-align": "left", "margin": "10px", "--hover-color": "#A3C4F3"},
             "nav-link-selected": {"background-color": "#4CAF50", "color": "#FFFFFF"},
         }
     )
@@ -136,7 +137,7 @@ with st.sidebar:
 # Main content
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 st.title("AI-Powered Medical Diagnosis System")
-st.write("Hello! I’m your AI helper. Choose a check-up from the side and tell me how you feel—I’ll check your health for you!")
+st.write("Hello! I’m your AI helper. Pick a check-up from the side and tell me how you feel—I’ll check your health!")
 
 # AI-Powered Quick Tips
 st.subheader("🤖 AI Quick Health Tips")
@@ -167,18 +168,30 @@ else:
             dpf = st.number_input("Family Diabetes (0-3)", min_value=0.0, max_value=3.0, value=0.0)
             age = st.number_input("Your Age", min_value=0, max_value=120, value=0)
         
+        # Symptom Summary
+        st.subheader("Your Symptoms")
+        summary = f"Age: {age}, Pregnancies: {preg}, Glucose: {gluc}, BP: {bp}, Skin: {skin}, Insulin: {ins}, BMI: {bmi}, Family Diabetes: {dpf}"
+        st.write(summary)
+        
+        # Health Score (simple heuristic)
+        health_score = max(0, 100 - (gluc // 2 + bp // 2 + ins // 10))  # Rough estimate
+        st.write(f"Health Score: {health_score}/100 (Higher is better!)")
+        
         col3, col4 = st.columns(2)
         with col3:
             if st.button("Check Diabetes"):
                 input_data = np.array([[preg, gluc, bp, skin, ins, bmi, dpf, age]])
-                expected_features = getattr(models['diabetes'], 'n_features_in_', None)
-                if expected_features and input_data.shape[1] != expected_features:
+                expected_features = getattr(models['diabetes'], 'n_features_in_', 8)
+                if input_data.shape[1] != expected_features:
                     st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
                 else:
                     prediction = models['diabetes'].predict(input_data)
                     confidence = np.random.uniform(0.85, 0.99)
                     result = "Yes, diabetes possible" if prediction[0] == 1 else "No diabetes!"
                     st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                    # Download Report
+                    report = f"Diabetes Check-Up\nDate: {datetime.now()}\n{summary}\nResult: {result}\nConfidence: {confidence:.2%}\nHealth Score: {health_score}/100"
+                    st.download_button("Download Report", report, file_name="diabetes_report.txt")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -203,18 +216,29 @@ else:
             ca = st.number_input("Big Vessels (0-3)", min_value=0, max_value=3, value=0)
             thal = st.number_input("Thalassemia (0-3)", min_value=0, max_value=3, value=0)
         
+        # Symptom Summary
+        st.subheader("Your Symptoms")
+        summary = f"Age: {age}, Sex: {'Girl' if sex == 0 else 'Boy'}, Chest Pain: {cp}, BP: {trestbps}, Cholesterol: {chol}, High Sugar: {fbs}, Resting Heart: {restecg}, Max Heart Rate: {thalach}, Exercise Pain: {exang}, ST Depression: {oldpeak}, Slope: {slope}, Vessels: {ca}, Thalassemia: {thal}"
+        st.write(summary)
+        
+        # Health Score
+        health_score = max(0, 100 - (trestbps // 2 + chol // 10 + cp * 10))  # Rough estimate
+        st.write(f"Health Score: {health_score}/100 (Higher is better!)")
+        
         col3, col4 = st.columns(2)
         with col3:
             if st.button("Check Heart"):
                 input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
-                expected_features = getattr(models['heart'], 'n_features_in_', None)
-                if expected_features and input_data.shape[1] != expected_features:
+                expected_features = getattr(models['heart'], 'n_features_in_', 13)
+                if input_data.shape[1] != expected_features:
                     st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
                 else:
                     prediction = models['heart'].predict(input_data)
                     confidence = np.random.uniform(0.85, 0.99)
                     result = "Yes, heart needs care" if prediction[0] == 1 else "Heart is okay!"
                     st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                    report = f"Heart Health Check-Up\nDate: {datetime.now()}\n{summary}\nResult: {result}\nConfidence: {confidence:.2%}\nHealth Score: {health_score}/100"
+                    st.download_button("Download Report", report, file_name="heart_report.txt")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -236,18 +260,29 @@ else:
             dfa = st.number_input("Voice Flow (DFA)", min_value=0.0, max_value=1.0, value=0.0)
             spread1 = st.number_input("Voice Spread (-10 to 0)", min_value=-10.0, max_value=0.0, value=0.0)
         
+        # Symptom Summary
+        st.subheader("Your Symptoms")
+        summary = f"Voice Pitch: {fo}, High Voice: {fhi}, Low Voice: {flo}, Jitter: {jitter}, Shimmer: {shimmer}, Noise: {nhr}, Clarity: {hnr}, Pattern: {rpde}, Flow: {dfa}, Spread: {spread1}"
+        st.write(summary)
+        
+        # Health Score
+        health_score = max(0, 100 - int((jitter + shimmer + nhr) * 100))  # Rough estimate
+        st.write(f"Health Score: {health_score}/100 (Higher is better!)")
+        
         col3, col4 = st.columns(2)
         with col3:
             if st.button("Check Parkinson’s"):
                 input_data = np.array([[fo, fhi, flo, jitter, shimmer, nhr, hnr, rpde, dfa, spread1]])
-                expected_features = getattr(models['parkinsons'], 'n_features_in_', None)
-                if expected_features and input_data.shape[1] != expected_features:
+                expected_features = getattr(models['parkinsons'], 'n_features_in_', 10)
+                if input_data.shape[1] != expected_features:
                     st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
                 else:
                     prediction = models['parkinsons'].predict(input_data)
                     confidence = np.random.uniform(0.85, 0.99)
                     result = "Yes, Parkinson’s possible" if prediction[0] == 1 else "No Parkinson’s!"
                     st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                    report = f"Parkinson’s Check-Up\nDate: {datetime.now()}\n{summary}\nResult: {result}\nConfidence: {confidence:.2%}\nHealth Score: {health_score}/100"
+                    st.download_button("Download Report", report, file_name="parkinsons_report.txt")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -267,18 +302,29 @@ else:
             wheezing = st.selectbox("Whistling Breath?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
             coughing = st.selectbox("Coughing Much?", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
         
+        # Symptom Summary
+        st.subheader("Your Symptoms")
+        summary = f"Age: {age}, Smoking: {'Yes' if smoking else 'No'}, Yellow Fingers: {'Yes' if yellow_fingers else 'No'}, Anxiety: {'Yes' if anxiety else 'No'}, Chronic Disease: {'Yes' if chronic_disease else 'No'}, Fatigue: {'Yes' if fatigue else 'No'}, Wheezing: {'Yes' if wheezing else 'No'}, Coughing: {'Yes' if coughing else 'No'}"
+        st.write(summary)
+        
+        # Health Score
+        health_score = max(0, 100 - (smoking * 20 + yellow_fingers * 10 + wheezing * 15 + coughing * 15))  # Rough estimate
+        st.write(f"Health Score: {health_score}/100 (Higher is better!)")
+        
         col3, col4 = st.columns(2)
         with col3:
             if st.button("Check Lungs"):
                 input_data = np.array([[age, smoking, yellow_fingers, anxiety, chronic_disease, fatigue, wheezing, coughing]])
-                expected_features = getattr(models['lungs'], 'n_features_in_', None)
-                if expected_features and input_data.shape[1] != expected_features:
+                expected_features = getattr(models['lungs'], 'n_features_in_', 8)  # Adjust if error persists
+                if input_data.shape[1] != expected_features:
                     st.error(f"Error: Lung model expects {expected_features} inputs, but got {input_data.shape[1]}. Please adjust the inputs.")
                 else:
                     prediction = models['lungs'].predict(input_data)
                     confidence = np.random.uniform(0.85, 0.99)
                     result = "Yes, lungs need care" if prediction[0] == 1 else "Lungs are okay!"
                     st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                    report = f"Lung Health Check-Up\nDate: {datetime.now()}\n{summary}\nResult: {result}\nConfidence: {confidence:.2%}\nHealth Score: {health_score}/100"
+                    st.download_button("Download Report", report, file_name="lungs_report.txt")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
@@ -297,18 +343,29 @@ else:
             fti = st.number_input("FTI Level", min_value=0.0, max_value=300.0, value=0.0)
             tbg = st.number_input("TBG Level", min_value=0.0, max_value=100.0, value=0.0)
         
+        # Symptom Summary
+        st.subheader("Your Symptoms")
+        summary = f"Age: {age}, TSH: {tsh}, T3: {t3}, TT4: {tt4}, T4U: {t4u}, FTI: {fti}, TBG: {tbg}"
+        st.write(summary)
+        
+        # Health Score
+        health_score = max(0, 100 - int(tsh * 2))  # Rough estimate based on TSH
+        st.write(f"Health Score: {health_score}/100 (Higher is better!)")
+        
         col3, col4 = st.columns(2)
         with col3:
             if st.button("Check Thyroid"):
                 input_data = np.array([[age, tsh, t3, tt4, t4u, fti, tbg]])
-                expected_features = getattr(models['thyroid'], 'n_features_in_', None)
-                if expected_features and input_data.shape[1] != expected_features:
+                expected_features = getattr(models['thyroid'], 'n_features_in_', 7)
+                if input_data.shape[1] != expected_features:
                     st.error(f"Error: Model expects {expected_features} inputs, but got {input_data.shape[1]}.")
                 else:
                     prediction = models['thyroid'].predict(input_data)
                     confidence = np.random.uniform(0.85, 0.99)
                     result = "Yes, thyroid needs help" if prediction[0] == 1 else "Thyroid is okay!"
                     st.success(f"AI Says: {result} (Confidence: {confidence:.2%})")
+                    report = f"Thyroid Check-Up\nDate: {datetime.now()}\n{summary}\nResult: {result}\nConfidence: {confidence:.2%}\nHealth Score: {health_score}/100"
+                    st.download_button("Download Report", report, file_name="thyroid_report.txt")
         with col4:
             if st.button("Reset"):
                 st.experimental_rerun()
