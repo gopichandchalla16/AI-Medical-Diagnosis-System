@@ -4,7 +4,7 @@ from streamlit_option_menu import option_menu
 import numpy as np
 import os
 
-# Set page configuration
+# Set page configuration (must be first Streamlit command)
 st.set_page_config(page_title="AI Medical Diagnosis", layout="wide")
 
 # Load models with error handling
@@ -29,30 +29,51 @@ for name, path in model_files.items():
         st.write(f"Files in directory: {os.listdir('.')}")
         st.write(f"Files in Models/: {os.listdir('Models') if os.path.exists('Models') else 'Models/ not found'}")
 
-# Add background image via custom CSS
+# Add background image with low fade and improve text visibility via custom CSS
 st.markdown(
     """
     <style>
     .stApp {
-        background-image: url("https://img.freepik.com/free-photo/medical-background-with-icons_23-2148499561.jpg");
+        background-image: url("https://img.freepik.com/free-vector/medical-healthcare-background-with-heart-beat-pulse_1017-26089.jpg");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
+    }
+    /* Semi-transparent overlay to make text readable */
+    .main-content {
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 10px;
     }
     .stButton>button {
         background-color: #4CAF50;
         color: white;
         border-radius: 5px;
+        font-weight: bold;
     }
     .stTextInput>div>input {
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #333333;
+        border: 1px solid #4CAF50;
+        border-radius: 5px;
     }
     .sidebar .sidebar-content {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.95);
         border-radius: 10px;
     }
     h1, h2, h3 {
         color: #2E7D32;
+        font-weight: bold;
+    }
+    /* Ensure all text is dark and readable */
+    p, div, span, label {
+        color: #333333 !important;
+        font-weight: 500;
+    }
+    .stSuccess, .stError {
+        color: #333333 !important;
+        font-weight: bold;
     }
     </style>
     """,
@@ -75,7 +96,8 @@ with st.sidebar:
         }
     )
 
-# Main content based on selection
+# Main content wrapped in a div for better visibility
+st.markdown('<div class="main-content">', unsafe_allow_html=True)
 st.title("AI-Powered Medical Diagnosis System")
 st.write("Select a disease from the sidebar to input symptoms and get a prediction.")
 
@@ -102,7 +124,6 @@ else:
             result = "Positive (Diabetic)" if prediction[0] == 1 else "Negative (Non-Diabetic)"
             st.success(f"Prediction: {result}")
 
-    # [Rest of the code remains unchanged for other diseases...]
     elif selected == "Heart Disease Prediction":
         st.header("Heart Disease Prediction")
         col1, col2 = st.columns(2)
@@ -189,6 +210,8 @@ else:
             result = "Positive (Hypo-Thyroid)" if prediction[0] == 1 else "Negative (No Hypo-Thyroid)"
             st.success(f"Prediction: {result}")
 
+st.markdown("</div>", unsafe_allow_html=True)
+
 # Footer
 st.markdown("---")
-st.write("Developed by Gopichand  | Powered by Streamlit")
+st.write("Developed by Gopichand | Powered by Streamlit")
